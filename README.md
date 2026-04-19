@@ -156,7 +156,7 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 
 ### Forecast vs Actual
 
-![Forecast](outputs/forcasts/forecast_vs_actual_xgboost.png)
+![Forecast](outputs/forecasts/forecast_vs_actual_xgboost.png)
 
 ### Reorder Recommendations Table
 
