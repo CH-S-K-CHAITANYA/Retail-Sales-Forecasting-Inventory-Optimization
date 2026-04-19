@@ -153,11 +153,11 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 
 ### Monthly Sales Trend
 
-![Sales Trend](images/01_monthly_sales_trend.png)
+![Sales Trend](outputs/eda/01_monthly_sales_trend.png)
 
 ### Forecast vs Actual
 
-![Forecast](images/forecast_chart.png)
+![Forecast](outputs/forcasts/forecast_results_xgboost.png)
 
 ### Reorder Recommendations Table
 
@@ -165,7 +165,7 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 
 ### Inventory Health
 
-![Inventory Status](images/inventory_status_pie.png)
+![Inventory Status](outputs/eda/10_inventory_status_pie.png)
 
 ---
 
