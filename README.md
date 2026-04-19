@@ -148,7 +148,7 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 
 ### Dashboard
 
-![Dashboard](images/dashboard_.png)
+![Dashboard](images/dashboard.png)
 
 ### Monthly Sales Trend
 
