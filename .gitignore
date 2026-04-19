@@ -1,0 +1,13 @@
+# Python
+retail_env/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Large files
+data/raw/*.csv
+models/*.pkl
+
+# OS
+.DS_Store
+Thumbs.db
