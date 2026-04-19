@@ -62,66 +62,69 @@ def apply_weekend_effect(date):
 
 
 def generate_dataset(start_date="2021-01-01", end_date="2024-01-01"):
-    """
-    Main function to generate synthetic retail sales dataset.
-    Returns a DataFrame with 50,000+ rows of realistic retail data.
-    """
     records = []
     date_range = pd.date_range(start=start_date, end=end_date, freq="D")
 
-    print(f"Generating data from {start_date} to {end_date}...")
-    print(f"Total days: {len(date_range)}, Stores: {len(STORES)}, Products per store: 20")
-    print("Estimated rows:", len(date_range) * len(STORES) * 20)
+    # Dictionary to track current stock for each (store, product)
+    # Start with a full shelf (e.g., 500 units)
+    current_inventory = {(s, p): 500 for s in STORES for cat in PRODUCTS for p in PRODUCTS[cat]}
+    
+    # Dictionary to track orders that are "in transit" (date_due: [(store, product, qty)])
+    orders_in_transit = {}
 
     for date in date_range:
+        # Check if any orders arrived today
+        if date in orders_in_transit:
+            for store, product, qty in orders_in_transit[date]:
+                current_inventory[(store, product)] += qty
+
         for store in STORES:
             for category, products in PRODUCTS.items():
                 for product in products:
                     base_price = PRICES[product]
                     season_mult = apply_seasonality(date, category)
                     weekend_mult = apply_weekend_effect(date)
-
-                    # Add store-specific variability
                     store_mult = np.random.uniform(0.8, 1.3)
 
-                    # Base sales volume (units sold per day)
+                    # Determine Demand
                     base_sales = np.random.randint(10, 80)
-                    sales_units = int(
-                        base_sales * season_mult * weekend_mult * store_mult
-                        + np.random.normal(0, 5)  # Random noise
-                    )
-                    sales_units = max(0, sales_units)  # No negative sales
+                    demand = int(base_sales * season_mult * weekend_mult * store_mult + np.random.normal(0, 5))
+                    demand = max(0, demand)
 
-                    # Revenue
-                    # Occasional price promotions (10% discount)
-                    discount = 0.1 if np.random.random() < 0.15 else 0.0
-                    final_price = round(base_price * (1 - discount), 2)
-                    revenue = round(sales_units * final_price, 2)
+                    # Inventory Logic
+                    opening_stock = current_inventory[(store, product)]
+                    sales_units = min(opening_stock, demand) # Can't sell more than you have
+                    closing_stock = opening_stock - sales_units
+                    current_inventory[(store, product)] = closing_stock
+                    
+                    stockout_flag = 1 if (demand > opening_stock) else 0
+                    lead_time = int(np.random.choice([3, 5, 7]))
 
-                    # Stock level (simulate stock management)
-                    opening_stock = np.random.randint(100, 500)
-                    # Stock can't go below 0
-                    closing_stock = max(0, opening_stock - sales_units)
-                    stockout_flag = 1 if closing_stock == 0 else 0
+                    # TRIGGER REORDER: If stock is low and no order is already in transit
+                    # (Simplified: ROP approx 400 for these items)
+                    if closing_stock < 400:
+                        arrival_date = date + timedelta(days=lead_time)
+                        if arrival_date not in orders_in_transit:
+                            orders_in_transit[arrival_date] = []
+                        # Simulate ordering a batch (EOQ approx 1300)
+                        orders_in_transit[arrival_date].append((store, product, 1300))
 
                     records.append({
-                        "date":          date,
-                        "store":         store,
-                        "category":      category,
-                        "product":       product,
-                        "sales_units":   sales_units,
-                        "revenue":       revenue,
-                        "unit_price":    final_price,
+                        "date": date,
+                        "store": store,
+                        "category": category,
+                        "product": product,
+                        "sales_units": sales_units,
+                        "revenue": round(sales_units * base_price, 2),
+                        "unit_price": base_price,
                         "opening_stock": opening_stock,
                         "closing_stock": closing_stock,
                         "stockout_flag": stockout_flag,
-                        "lead_time_days": np.random.choice([3, 5, 7]),  # Supplier lead time
+                        "lead_time_days": lead_time,
                     })
 
     df = pd.DataFrame(records)
-    print(f"\n✅ Dataset generated: {df.shape[0]:,} rows, {df.shape[1]} columns")
     return df
-
 
 # ─── Main Execution ────────────────────────────────────────────────────────────
 

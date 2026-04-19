@@ -19,7 +19,7 @@ Retail businesses lose **$1.75 trillion globally** due to overstocking and stock
 | Overstock (excess inventory costs money) | EOQ calculation minimizes order costs            |
 | Stockout (lost sales, lost customers)    | Reorder point alert ensures timely replenishment |
 | Manual forecasting is slow & inaccurate  | XGBoost model achieves <10% MAPE                 |
-| No visibility into inventory health      | streamlit dashboard shows real-time status           |
+| No visibility into inventory health      | Taipy dashboard shows real-time status           |
 
 ## 🏭 Industry Relevance
 
@@ -40,7 +40,7 @@ Companies like **D-Mart, Amazon, Walmart, Flipkart, and Reliance Retail** use si
 | Data Processing        | Pandas, NumPy                        |
 | Machine Learning       | XGBoost, Scikit-learn                |
 | Visualization          | Matplotlib, Seaborn, Plotly          |
-| Dashboard & Simulation | **streamlit** (stateful, scenario-ready) |
+| Dashboard & Simulation | **Taipy** (stateful, scenario-ready) |
 | Notebooks              | Jupyter                              |
 | Version Control        | Git + GitHub                         |
 

@@ -14,7 +14,7 @@ import time
 
 print("="*70)
 print("  RETAIL SALES FORECASTING & INVENTORY OPTIMIZATION SYSTEM")
-print("  By: CH S K CHAITANYA | Python + XGBoost + Taipy")
+print("  By: CH S K CHAITANYA | Python + XGBoost")
 print("="*70)
 
 # ─── Ensure src is in path ────────────────────────────────────────────────────

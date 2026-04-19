@@ -85,21 +85,16 @@ def calculate_days_of_stock(current_stock, avg_daily_demand):
 def compute_inventory_metrics(df):
     """
     Aggregate sales data by product + store and compute all inventory KPIs.
-    
-    Input: cleaned or featured dataframe with sales_units, closing_stock, etc.
-    Output: DataFrame with one row per product-store combination
-            containing all inventory metrics.
+    Updated to compare ROP against the LATEST stock instead of 3-year averages.
     """
     print("\nComputing inventory metrics per product-store...")
 
-    # Group by store + product and calculate demand statistics
+    # 1. Group by store + product and calculate demand statistics
     inventory_df = df.groupby(["store", "category", "product"]).agg(
         avg_daily_demand   = ("sales_units", "mean"),
         std_daily_demand   = ("sales_units", "std"),
         total_units_sold   = ("sales_units", "sum"),
-        avg_closing_stock  = ("closing_stock", "mean"),
-        min_closing_stock  = ("closing_stock", "min"),
-        max_closing_stock  = ("closing_stock", "max"),
+        avg_closing_stock  = ("closing_stock", "mean"), # Still useful for historical context
         avg_lead_time      = ("lead_time_days", "mean"),
         stockout_days      = ("stockout_flag", "sum"),
         total_days_tracked = ("sales_units", "count"),
@@ -107,14 +102,12 @@ def compute_inventory_metrics(df):
         total_revenue      = ("revenue", "sum"),
     ).reset_index()
 
-    # Fill NaN std (single observation products)
+    # Fill NaN std and round demand
     inventory_df["std_daily_demand"] = inventory_df["std_daily_demand"].fillna(0)
-
-    # Round averages
     inventory_df["avg_daily_demand"] = inventory_df["avg_daily_demand"].round(1)
     inventory_df["avg_lead_time"]    = inventory_df["avg_lead_time"].round(0).astype(int)
 
-    # Calculate KPIs
+    # 2. Calculate Base KPIs
     inventory_df["safety_stock"] = inventory_df.apply(
         lambda r: calculate_safety_stock(r["std_daily_demand"], r["avg_lead_time"]),
         axis=1
@@ -124,30 +117,43 @@ def compute_inventory_metrics(df):
         axis=1
     )
 
-    # Annual demand = avg daily × 365
     inventory_df["annual_demand"] = (inventory_df["avg_daily_demand"] * 365).round(0)
     inventory_df["eoq"] = inventory_df["annual_demand"].apply(calculate_eoq)
 
-    # Days of stock remaining (using current average closing stock as proxy)
+    # 3. GET CURRENT REALITY (The Fix)
+    # Find the most recent date in the entire dataset
+    latest_date = df['date'].max()
+    
+    # Filter for only the latest day's stock levels
+    current_stock_snap = df[df['date'] == latest_date][['store', 'product', 'closing_stock']]
+    current_stock_snap.columns = ['store', 'product', 'current_actual_stock']
+
+    # Merge this 'current' snapshot into our main metrics table
+    inventory_df = inventory_df.merge(current_stock_snap, on=['store', 'product'], how='left')
+
+    # 4. Calculate Days of Stock using Current Stock, not Average
     inventory_df["days_of_stock_remaining"] = inventory_df.apply(
-        lambda r: calculate_days_of_stock(r["avg_closing_stock"], r["avg_daily_demand"]),
+        lambda r: calculate_days_of_stock(r["current_actual_stock"], r["avg_daily_demand"]),
         axis=1
     )
 
-    # Stockout rate (% of days with zero stock)
+    # Stockout rate remains based on history
     inventory_df["stockout_rate_pct"] = (
         inventory_df["stockout_days"] / inventory_df["total_days_tracked"] * 100
     ).round(2)
 
-    # Inventory status
-    inventory_df["inventory_status"] = inventory_df.apply(classify_inventory_status, axis=1)
+    # 5. Inventory status (Logic now looks at 'current_actual_stock')
+    inventory_df["inventory_status"] = inventory_df.apply(
+        lambda r: classify_inventory_status_logic(r["current_actual_stock"], r["reorder_point"], r["safety_stock"]), 
+        axis=1
+    )
 
-    # Reorder alert
+    # 6. Reorder alert (Logic now looks at 'current_actual_stock')
     inventory_df["reorder_alert"] = (
-        inventory_df["avg_closing_stock"] <= inventory_df["reorder_point"]
-    ).map({True: "🔴 ORDER NOW", False: "🟢 Sufficient"})
+        inventory_df["current_actual_stock"] <= inventory_df["reorder_point"]
+    ).map({True: "🔴 ORDER NOW", False: "✅ STABLE"})
 
-    # Recommended order quantity
+    # 7. Recommended order quantity
     inventory_df["recommended_order_qty"] = inventory_df.apply(
         lambda r: int(r["eoq"]) if r["reorder_alert"] == "🔴 ORDER NOW" else 0,
         axis=1
@@ -156,25 +162,16 @@ def compute_inventory_metrics(df):
     print(f"✅ Computed metrics for {len(inventory_df):,} product-store combinations")
     return inventory_df
 
-
-def classify_inventory_status(row):
-    """
-    Classify each product's inventory health.
-    Returns: 'Critical', 'Low', 'Optimal', 'Overstock'
-    """
-    stock   = row["avg_closing_stock"]
-    reorder = row["reorder_point"]
-    safety  = row["safety_stock"]
-
+def classify_inventory_status_logic(stock, reorder, safety):
+    """Refined classification based on current stock levels."""
     if stock <= safety:
         return "🔴 Critical"
     elif stock <= reorder:
         return "🟠 Low"
-    elif stock <= reorder * 3:
-        return "🟢 Optimal"
+    elif stock <= reorder * 1.5:
+        return "🟢 Healthy"
     else:
         return "🔵 Overstock"
-
 
 # ─── Summary Statistics ───────────────────────────────────────────────────────
 
