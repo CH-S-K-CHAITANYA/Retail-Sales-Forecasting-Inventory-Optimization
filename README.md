@@ -2,10 +2,9 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
 [![XGBoost](https://img.shields.io/badge/Model-XGBoost-orange)](https://xgboost.readthedocs.io)
-[![Taipy](https://img.shields.io/badge/Dashboard-Taipy-purple)](https://taipy.io)
 [![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
-> An end-to-end retail analytics system that forecasts product demand using machine learning and optimizes inventory using operations research formulas — deployed as an interactive Taipy simulation dashboard.
+> An end-to-end retail analytics system that forecasts product demand using machine learning and optimizes inventory using operations research formulas — deployed as an interactive streamlit simulation dashboard.
 
 ---
 
@@ -20,7 +19,7 @@ Retail businesses lose **$1.75 trillion globally** due to overstocking and stock
 | Overstock (excess inventory costs money) | EOQ calculation minimizes order costs            |
 | Stockout (lost sales, lost customers)    | Reorder point alert ensures timely replenishment |
 | Manual forecasting is slow & inaccurate  | XGBoost model achieves <10% MAPE                 |
-| No visibility into inventory health      | Taipy dashboard shows real-time status           |
+| No visibility into inventory health      | streamlit dashboard shows real-time status           |
 
 ## 🏭 Industry Relevance
 
@@ -41,7 +40,7 @@ Companies like **D-Mart, Amazon, Walmart, Flipkart, and Reliance Retail** use si
 | Data Processing        | Pandas, NumPy                        |
 | Machine Learning       | XGBoost, Scikit-learn                |
 | Visualization          | Matplotlib, Seaborn, Plotly          |
-| Dashboard & Simulation | **Taipy** (stateful, scenario-ready) |
+| Dashboard & Simulation | **streamlit** (stateful, scenario-ready) |
 | Notebooks              | Jupyter                              |
 | Version Control        | Git + GitHub                         |
 
@@ -57,7 +56,7 @@ Raw CSV Data → Preprocessing → Feature Engineering → XGBoost Model
                                            Inventory Optimization Engine
                                            (Safety Stock, Reorder Point, EOQ)
                                                            ↓
-                                              Taipy Interactive Dashboard
+                                              streamlit Interactive Dashboard
                                               (Charts + Scenario Simulation)
 ```
 
@@ -73,7 +72,7 @@ Retail-Sales-Forecasting-Inventory-Optimization/
 ├── src/                   # Modular Python source code
 ├── models/                # Saved ML models (.pkl)
 ├── outputs/               # Charts, forecasts, recommendations
-├── app/                   # Taipy dashboard
+├── app/                   # streamlit dashboard
 ├── images/                # Screenshots for README
 ├── reports/               # Business summary
 ├── main.py                # Run full pipeline
@@ -105,7 +104,7 @@ pip install -r requirements.txt
 # Run full pipeline (data → model → inventory → charts)
 python main.py
 
-# Launch interactive Taipy dashboard
+# Launch interactive streamlit dashboard
 cd app && python dashboard.py
 # → Open http://localhost:5000
 ```
@@ -176,7 +175,7 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 3. Engineer 25+ features (lag, rolling, seasonality, price)
 4. Train XGBoost forecasting model (time-series split)
 5. Compute safety stock, reorder points, EOQ per product
-6. Launch Taipy dashboard and test what-if scenarios
+6. Launch streamlit dashboard and test what-if scenarios
 
 ---
 
@@ -197,7 +196,7 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 - Time-series feature engineering for ML
 - XGBoost regression for demand forecasting
 - Operations research inventory formulas (EOQ, ROP, Safety Stock)
-- Taipy for building stateful business dashboards
+- streamlit for building stateful business dashboards
 - End-to-end ML pipeline design
 - Professional GitHub documentation
 
