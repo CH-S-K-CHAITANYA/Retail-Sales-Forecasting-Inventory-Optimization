@@ -207,8 +207,8 @@ EOQ           = √(2 × annual_demand × ordering_cost / holding_cost)
 
 **[CH S K CHAITANYA]**
 
-- LinkedIn: [linkedin.com/in/chskchaitanya]
-- GitHub: [github.com/CH-S-K-CHAITANYA]
-- Email: chskchaitanya755@gmail.com
+- 📧 chskchaitanya755@gmail.com
+- 🔗 [LinkedIn](https://linkedin.com/in/chskchaitanya)
+- 🐙 [GitHub](https://github.com/CH-S-K-CHAITANYA)
 
 _Open to Data Analyst, Business Analyst, Retail Analytics, and Data Science roles._
